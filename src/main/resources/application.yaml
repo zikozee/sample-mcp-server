@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: sample-mcp-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/boardgamedb
+    username: myuser
+    password: secret
+
+  sql:
+    init:
+      mode: always
+
+
+# # for stdio
+#  main:
+#    banner-mode: off
+
+#logging:
+#  level:
+#    root: ERROR
+
+server:
+  port: 3001
