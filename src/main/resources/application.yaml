@@ -11,6 +11,13 @@ spring:
     init:
       mode: always
 
+  ai:
+    mcp:
+      server:
+        type: ASYNC
+        capabilities:
+          prompt: true
+
 
 # # for stdio
 #  main:

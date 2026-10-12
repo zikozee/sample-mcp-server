@@ -54,7 +54,7 @@ spring:
   - depending on the one you choose via start.spring.io spring will add either:
     - implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'  OR
     - implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webflux'
-    - 
+  
 - here the app can act as a standard web or reactive application
 - hence banner can be turned on
 - we can log on the console (good k8s scraping)
@@ -69,3 +69,101 @@ spring:
   - ServerID: a name
   - Transport: sse(Server-Sent Events)
   - url: http://localhost:3001/sse
+
+# Exposing prompts and resources (see easier way below with mcp-annotations)
+- Rather than encode the prompt creation in the application itself, the MCP Server can provide one or more predefined prompts, which the application can fill in with details from the UI before sending the prompt to the LLM
+
+- prompts and its spec
+```java
+ // if not reactive use List<McpServerFeatures.SyncPromptSpecification>
+    @Bean
+    public List<McpServerFeatures.AsyncPromptSpecification> asyncGamePrompts(){
+        return List.of(asyncPromptSpec(
+                        "gamesForPlayerCount",
+                        "A prompt to find games for a specified number of players",
+                        "playerCount",
+                        "The number of Players",
+                        "Find games for %s players",
+                        "A prompt to find games for %s players"
+                ),
+                asyncPromptSpec(
+                        "gamesForPlayerTime",
+                        "A prompt to find games for given amount of time",
+                        "timeInMinutes",
+                        "The time in minutes",
+                        "Find games play in %s minutes",
+                        "A prompt to find games to play in %s minutes"
+                )
+        );
+    }
+
+
+    private McpServerFeatures.AsyncPromptSpecification asyncPromptSpec(String promptName, String promptDesc,
+                                                                       String promptArgumentName, String promptArgumentDesc,
+                                                                       String schemaContentText, String promptResultDesc){
+        // define a prompt
+        McpSchema.Prompt playerTimePrompt = McpSchema.Prompt.builder(promptName)
+                .description(promptDesc)
+                .arguments(Collections.singletonList(
+                        McpSchema.PromptArgument.builder(promptArgumentName)
+                                .description(promptArgumentDesc)
+                                .required(true)
+                                .build()
+                ))
+                .build();
+
+        // define a prompt specification
+        return new McpServerFeatures.AsyncPromptSpecification(
+                playerTimePrompt,
+                (exchange, getPromptRequest) -> {
+
+                    final String argument = (String) getPromptRequest.arguments().get(promptArgumentName);
+
+                    McpSchema.PromptMessage userMessage = new McpSchema.PromptMessage(
+                            McpSchema.Role.USER,
+                            McpSchema.TextContent.builder(String.format(schemaContentText, argument)).build()
+                    );
+
+                    return Mono.fromSupplier(() -> McpSchema.GetPromptResult.builder(Collections.singletonList(userMessage))
+                            .description(String.format(promptResultDesc, argument))
+                            .build());
+                });
+    }
+```
+
+- resource and its spec
+```java
+@Bean
+public List<McpServerFeatures.SyncResourceSpecification>
+    gameResources(GameRepository gameRepository) {
+  List<McpSchema.Role> audience = List.of(McpSchema.Role.USER);
+  McpSchema.Annotations annotations =
+      new McpSchema.Annotations(audience, 1.0);
+
+  var gameListResource = new McpSchema.Resource(
+      "games://game-list",
+      "Game List",
+      "A list of games available in the repository",
+      "text/plain",
+      annotations
+  );
+
+  var gameTitles = gameRepository.findAllTitles();
+  var gameListText = new StringBuilder();
+  for (String title : gameTitles) {
+    gameListText.append("- ").append(title).append("\n");
+  }
+
+  var gameListResourceSpec = 
+    new McpServerFeatures.SyncResourceSpecification(
+      gameListResource, (exchange, request) -> {
+    return new McpSchema.ReadResourceResult(
+        List.of(new McpSchema.TextResourceContents(
+            request.uri(),
+            "text/plain",
+            gameListText.toString())));
+  });
+
+  return List.of(gameListResourceSpec);
+}
+```

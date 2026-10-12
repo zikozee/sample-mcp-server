@@ -29,4 +29,7 @@ public interface GameRepository extends CrudRepository<Game, Long> {
       WHERE min_playing_time <= :minutes AND max_playing_time >= :minutes
       """)
     List<Game> findGamesForPlayingTime(int minutes);
+
+    @Query(value="SELECT title FROm game ORDER BY title")
+    List<String> findAllTitles();
 }
