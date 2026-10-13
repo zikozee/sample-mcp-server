@@ -2,20 +2,15 @@ package com.zee.springai.mcpserver.config;
 
 
 import com.zee.springai.mcpserver.promptprovider.GamePromptProvider;
-import com.zee.springai.mcpserver.repository.GameRepository;
 import com.zee.springai.mcpserver.resourceprovider.GameResourceProvider;
 import com.zee.springai.mcpserver.tool.GameTools;
 import io.modelcontextprotocol.server.McpServerFeatures;
-import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.ai.mcp.annotation.spring.AsyncMcpAnnotationProviders;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,12 +23,12 @@ import java.util.List;
 public class McpConfig {
 
     // expose tools in an MCP Server
-    @Bean
-    ToolCallbackProvider toolCallbackProvider(GameTools gameTools){
-        return MethodToolCallbackProvider.builder()
-                .toolObjects(gameTools)
-                .build();
-    }
+//    @Bean
+//    ToolCallbackProvider toolCallbackProvider(GameTools gameTools){
+//        return MethodToolCallbackProvider.builder()
+//                .toolObjects(gameTools)
+//                .build();
+//    }
 
 
     /**

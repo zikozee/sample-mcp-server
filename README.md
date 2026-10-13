@@ -215,3 +215,20 @@ public List<McpServerFeatures.SyncResourceSpecification>
 ```
 
 - same structure for ResourceSpecification
+
+
+- @Tools vs @McpTool and their params
+  - if you use **@Tools**, you have to register them in the ToolCallbackProvider
+```java
+    @Bean
+    ToolCallbackProvider toolCallbackProvider(GameTools gameTools, ...){
+        return MethodToolCallbackProvider.builder()
+                .toolObjects(gameTools, ...)
+                .build();
+    }
+```
+- if you use **@McpTools**, registering **ToolCallbackProvider** not required
+- **NOTE** @McpTooll filters out return type
+  - if type ASYNC is used, it expects MONO and FLUX
+  - if sync is used it expect primitives, Collections, Objects etc. BUT not (MONO and FLUX)
+  - this applies to the PromptProvider(s) e.g GamePromptProvider and ResourceProvider(s) e.g GameResourceProvider

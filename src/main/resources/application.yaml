@@ -18,6 +18,10 @@ spring:
         type: ASYNC
         capabilities:
           prompt: true
+        protocol: STREAMABLE
+        streamable-http:
+          # default -> /mcp
+          mcp-endpoint: /mcp
 
 
 # # for stdio
