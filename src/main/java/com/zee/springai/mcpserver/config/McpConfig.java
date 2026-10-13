@@ -1,15 +1,17 @@
 package com.zee.springai.mcpserver.config;
 
 
+import com.zee.springai.mcpserver.promptprovider.GamePromptProvider;
 import com.zee.springai.mcpserver.repository.GameRepository;
+import com.zee.springai.mcpserver.resourceprovider.GameResourceProvider;
 import com.zee.springai.mcpserver.tool.GameTools;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
+import org.springframework.ai.mcp.annotation.spring.AsyncMcpAnnotationProviders;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -33,6 +35,9 @@ public class McpConfig {
                 .build();
     }
 
+
+    /**
+    // without using McpPrompt
     // if not reactive use List<McpServerFeatures.SyncPromptSpecification>
     @Bean
     public List<McpServerFeatures.AsyncPromptSpecification> asyncGamePrompts(){
@@ -87,10 +92,19 @@ public class McpConfig {
                             .build());
                 });
     }
+    */
 
 
 
+    //Using Mcp Annotations
+    @Bean
+    List<McpServerFeatures.AsyncPromptSpecification> asyncGamePrompts(GamePromptProvider gamePromptProvider){
+        return AsyncMcpAnnotationProviders
+                .promptSpecifications(Collections.singletonList(gamePromptProvider));
+    }
 
+
+    /**
     @Bean
     List<McpServerFeatures.AsyncResourceSpecification> gameResources(GameRepository gameRepository){
         List<McpSchema.Role> audience = Collections.singletonList(McpSchema.Role.USER);
@@ -135,4 +149,11 @@ public class McpConfig {
         return Collections.singletonList(asyncResourceSpecification);
     }
 
+    **/
+
+    @Bean
+    List<McpServerFeatures.AsyncResourceSpecification> gameResources(GameResourceProvider gameResourceProvider){
+        return AsyncMcpAnnotationProviders
+                .resourceSpecifications(Collections.singletonList(gameResourceProvider));
+    }
 }

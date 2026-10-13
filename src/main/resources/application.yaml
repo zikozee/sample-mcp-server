@@ -14,6 +14,7 @@ spring:
   ai:
     mcp:
       server:
+        # this should be SYNC (which is default) if you are not using webflux
         type: ASYNC
         capabilities:
           prompt: true

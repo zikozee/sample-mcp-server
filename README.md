@@ -71,8 +71,15 @@ spring:
   - url: http://localhost:3001/sse
 
 # Exposing prompts and resources (see easier way below with mcp-annotations)
-- Rather than encode the prompt creation in the application itself, the MCP Server can provide one or more predefined prompts, which the application can fill in with details from the UI before sending the prompt to the LLM
+- Tool:	Performs an action or computation
+- Resource:	Data you can read. Provides readable content or context
+- Prompt: Provides a reusable instruction template
 
+- Rather than encode the prompt creation in the application itself, the MCP Server can provide one or more predefined prompts, which the application can fill in with details from the UI before sending the prompt to the LLM
+- note i am using webflux hence am using the Async... counterpart
+- for webmvc usw thw Sync... counterpart
+
+## 1. Manually Defining in Configuration
 - prompts and its spec
 ```java
  // if not reactive use List<McpServerFeatures.SyncPromptSpecification>
@@ -129,7 +136,9 @@ spring:
                             .build());
                 });
     }
+    
 ```
+-  if you want to define a resource from binary data, such as an image or sound file, you would create a BlobResourceContents instead of a TextResourceContents, note there's ImageContent, AudioContent, BlobContent
 
 - resource and its spec
 ```java
@@ -167,3 +176,42 @@ public List<McpServerFeatures.SyncResourceSpecification>
   return List.of(gameListResourceSpec);
 }
 ```
+
+## 2. Using Mcp annotation
+
+- define PromptProvider
+```java
+ @McpPrompt(name = "gamesForPlayerCount",
+            description = "A prompt to find games for a specific number of player")
+    public Mono<McpSchema.GetPromptResult> getGamesForPlayerCount(@McpArg(name = "playerCount", description = "The number of Player", required = true)
+                                                                Integer playerCount) {
+
+
+
+
+        return Mono.fromSupplier(() -> {
+                    McpSchema.PromptMessage userMessage = new McpSchema.PromptMessage(
+                            McpSchema.Role.USER,
+                            McpSchema.TextContent.builder(String.format("Find games for %s players", playerCount)).build()
+                    );
+
+                return McpSchema.GetPromptResult.builder(Collections.singletonList(userMessage))
+                .description(String.format("A prompt to find games for %s players", playerCount))
+                .build();
+
+        });
+    }
+```
+-  if you want to define a resource from binary data, such as an image or sound file, you would create a BlobResourceContents instead of a TextResourceContents, note there's ImageContent, AudioContent, BlobContent
+
+- wire in the bean
+```java
+    @Bean
+    List<McpServerFeatures.AsyncPromptSpecification> asyncGamePrompts(GamePromptProvider gamePromptProvider){
+        return AsyncMcpAnnotationProviders
+                .promptSpecifications(Collections.singletonList(gamePromptProvider));
+    }
+
+```
+
+- same structure for ResourceSpecification
