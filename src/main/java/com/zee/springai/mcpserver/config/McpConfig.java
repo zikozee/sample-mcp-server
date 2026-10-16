@@ -5,6 +5,7 @@ import com.zee.springai.mcpserver.promptprovider.GamePromptProvider;
 import com.zee.springai.mcpserver.resourceprovider.GameResourceProvider;
 import com.zee.springai.mcpserver.tool.GameTools;
 import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.McpStatelessServerFeatures;
 import org.springframework.ai.mcp.annotation.spring.AsyncMcpAnnotationProviders;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
@@ -93,9 +94,9 @@ public class McpConfig {
 
     //Using Mcp Annotations
     @Bean
-    List<McpServerFeatures.AsyncPromptSpecification> asyncGamePrompts(GamePromptProvider gamePromptProvider){
+    List<McpStatelessServerFeatures.AsyncPromptSpecification> asyncGamePrompts(GamePromptProvider gamePromptProvider){
         return AsyncMcpAnnotationProviders
-                .promptSpecifications(Collections.singletonList(gamePromptProvider));
+                .statelessPromptSpecifications(Collections.singletonList(gamePromptProvider));
     }
 
 
@@ -147,8 +148,8 @@ public class McpConfig {
     **/
 
     @Bean
-    List<McpServerFeatures.AsyncResourceSpecification> gameResources(GameResourceProvider gameResourceProvider){
+    List<McpStatelessServerFeatures.AsyncResourceSpecification> gameResources(GameResourceProvider gameResourceProvider){
         return AsyncMcpAnnotationProviders
-                .resourceSpecifications(Collections.singletonList(gameResourceProvider));
+                .statelessResourceSpecifications(Collections.singletonList(gameResourceProvider));
     }
 }
