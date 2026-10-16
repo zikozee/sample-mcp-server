@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.zee.springai'
 version = '0.0.1-SNAPSHOT'
-description = 'sample-mcp-server'
+description = 'Sample SpringBoot mcp server'
 
 java {
     toolchain {
