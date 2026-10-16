@@ -1,4 +1,4 @@
-[![M8ven Score](https://m8ven.ai/badge/mcp/zikozee/sample-mcp-server)](https://m8ven.ai/mcp/zikozee/sample-mcp-server?s=readme)
+[![M8ven Score](https://m8ven.ai/badge/mcp/zikozee-sample-mcp-server-1rmovg?v=c7685ba4c68566d303e115102593c5c2)](https://m8ven.ai/mcp/zikozee-sample-mcp-server-1rmovg?s=readme)
 # MCP SERVER
 - expose tools in an MCP Server
 
