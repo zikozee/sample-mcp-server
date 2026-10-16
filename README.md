@@ -233,3 +233,14 @@ public List<McpServerFeatures.SyncResourceSpecification>
   - if type ASYNC is used, it expects MONO and FLUX
   - if sync is used it expect primitives, Collections, Objects etc. BUT not (MONO and FLUX)
   - this applies to the PromptProvider(s) e.g GamePromptProvider and ResourceProvider(s) e.g GameResourceProvider
+
+
+## Tests
+
+Run `./gradlew test`. The three `GameToolsIntegrationTests` exercise the tools with
+a real Spring Data JDBC repository and an isolated, in-memory H2 database. No local
+PostgreSQL server is required for these tests.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
