@@ -18,7 +18,7 @@ spring:
         type: ASYNC
         capabilities:
           prompt: true
-        protocol: STREAMABLE
+        protocol: STATELESS
         streamable-http:
           # default -> /mcp
           mcp-endpoint: /mcp
