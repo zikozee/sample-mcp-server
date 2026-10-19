@@ -72,9 +72,100 @@ spring:
   - url: http://localhost:3001/sse
 
 # Exposing prompts and resources (see easier way below with mcp-annotations)
+## mcp server capabilities
 - Tool:	Performs an action or computation
-- Resource:	Data you can read. Provides readable content or context
-- Prompt: Provides a reusable instruction template
+- Resource:	Data you can read. Provides readable content or context. structured Data exposed by system
+  - resources allow assistant to retrieve information about the system. e.g employee directory, list of directory  or system status info
+  - it helps provide relevant information or provide context for other operations
+- Prompt: Provides a reusable instruction template.
+  - They serve as guide to the assistant when interacting with LLM when performing certain tasks
+  - Instead of manually redefining the prompt, the assistant can simply reuse the available prompt
+Completions: Autocomplete suggestions for prompt arguments and resource parameters
+
+
+## Tool listing and call (i.e calling mcp servers directly)
+- listing
+```curl
+curl --location 'http://localhost:3001/mcp' \
+--header 'Accept: application/json, text/event-stream' \
+--header 'Content-Type: application/json' \
+--data '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/list",
+    "params": {}
+}'
+```
+- tool listing sample response
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "tools": [
+            {
+                "name": "findGamesForPlayerCount",
+                "title": "findGamesForPlayerCount",
+                "description": "Find games suitable for the specified number of players.",
+                "inputSchema": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "type": "object",
+                    "properties": {
+                        "numPlayers": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "The number of players to find games for."
+                        }
+                    },
+                    "required": [
+                        "numPlayers"
+                    ]
+                },
+                "annotations": {
+                    "title": "",
+                    "readOnlyHint": true,
+                    "destructiveHint": false,
+                    "idempotentHint": true,
+                    "openWorldHint": false
+                }
+            }
+        ]
+    }
+}
+```
+
+- tool call request
+```curl
+curl --location 'http://localhost:3001/mcp' \
+--header 'Accept: application/json, text/event-stream' \
+--data '{
+    "jsonrpc": "2.0",
+    "id": "2",
+    "method": "tools/call",
+    "params": {
+        "name": "findGamesForPlayerCount",
+        "arguments": {
+            "numPlayers": 4
+        }
+    }
+}'
+```
+- tool call response
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "2",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\":1,\"title\":\"Sagrada\",\"description\":\"A dice-drafting game where players create beautiful stained glass windows using colored dice.\",\"minPlayers\":1,\"maxPlayers\":4,\"minPlayingTime\":30,\"maxPlayingTime\":45}"
+      }
+    ],
+    "isError": false
+  }
+}
+```
 
 - Rather than encode the prompt creation in the application itself, the MCP Server can provide one or more predefined prompts, which the application can fill in with details from the UI before sending the prompt to the LLM
 - note i am using webflux hence am using the Async... counterpart
